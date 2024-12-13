@@ -1,0 +1,123 @@
+{% extends 'core/index.html' %}
+{% block obtener_nombres_clientes %}
+<style>
+    /* Estilos generales */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Encabezado */
+    header {
+        background-color: #2ecc71;
+        max-width: 920px;
+        margin: 0 auto;
+        color: white;
+        padding: 1rem 2rem;
+        margin-bottom: 30px;
+        text-align: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    /* Contenedor principal */
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Formulario */
+    form {
+        margin: 20px 0;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    select,
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        background: #f9f9f9;
+    }
+
+    select:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px;
+        margin-top: 5px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 12px;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    /* Mensajes de error */
+    .error-message {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container">
+    <header>Crear Venta</header>
+
+    <!-- Mostrar error si hay alguno -->
+    {% if error %}
+    <p class="error-message">{{ error }}</p>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Campo para seleccionar el cliente -->
+        <label for="cliente">Cliente:</label>
+        <select id="cliente" name="cliente" required>
+            {% for nombre in nombres_completos %}
+            <option value="{{ nombre }}">{{ nombre }}</option>
+            {% empty %}
+            <option value="">No hay clientes disponibles</option>
+            {% endfor %}
+        </select>
+
+        <!-- Renderizar el resto del formulario -->
+        {{ form.as_p }}
+
+        <!-- Botón para enviar -->
+        <button type="submit">Guardar Venta</button>
+    </form>
+</div>
+{% endblock %}

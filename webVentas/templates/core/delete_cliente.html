@@ -1,0 +1,87 @@
+{% extends 'core/index.html' %}
+
+{% block delete_cliente %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .tuvi {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        margin-left: 500px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    button, a {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-confirm {
+        background-color: #FF3B3B;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-confirm:hover {
+        background-color: #e03232;
+    }
+
+    .btn-cancel {
+        background-color: #4CAF50;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background-color: #45a049;
+    }
+</style>
+</head>
+<div class="tuvi">
+    <h1>Confirmar Eliminación</h1>
+    <p>¿Estás seguro de que deseas eliminar al cliente {{ cliente_id.first_name }} {{ cliente_id.last_name }}?</p>
+    <div class="button-group">
+        <form method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn-confirm">Eliminar</button>
+        </form>
+        <a href="{% url 'listar_clientes' %}" class="btn-cancel">Cancelar</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'core/index.html' %}
+{% block listar_productos %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #007bff;
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        font-size: 1.5rem;
+        max-width: 920px;
+        margin: 0 auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .productos-container {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(220px, 1fr));
+        /* Ajustar tamaño de las tarjetas */
+        gap: 20px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .producto {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        border: 1px solid #ddd;
+        overflow: hidden;
+        grid-column: span 1.5;
+        /* Hacer que ocupe dos columnas */
+    }
+
+    .producto:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .producto h3 {
+        color: #007bff;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .producto p {
+        font-size: 14px;
+        color: #555;
+        margin: 5px 0;
+    }
+
+    .alerta {
+        text-align: center;
+        color: white;
+        background-color: #f44336;
+        padding: 15px;
+        margin: 20px auto;
+        border-radius: 5px;
+        width: 90%;
+    }
+
+    @media (max-width: 768px) {
+        .productos-container {
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+        }
+    }
+
+    @media (max-width: 480px) {
+        .productos-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+</head>
+<header>Lista de Productos</header>
+
+{% if productos %}
+<div class="productos-container">
+    {% for producto in productos %}
+    <div class="producto">
+        <h3>{{ producto.nombre }}</h3>
+        <p><strong>Categoría:</strong> {{ producto.categoria.nombre }}</p>
+        <p><strong>Proveedor:</strong> {{ producto.proveedor.nombre }}</p>
+        <p><strong>Contacto de Proveedor:</strong> {{ producto.proveedor.contacto }}</p>
+        <p><strong>Cantidad en Stock:</strong> {{ producto.cantidadEnStock }}</p>
+        <p><strong>Precio:</strong> ${{ producto.precio }}</p>
+
+        <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-primary">Ver Detalles</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alerta">
+    <p>No se encontraron productos.</p>
+</div>
+{% endif %}
+{% endblock %}

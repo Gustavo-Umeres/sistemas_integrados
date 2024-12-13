@@ -1,0 +1,94 @@
+{% extends 'core/index.html' %}
+
+{% block detalle_producto %}
+<style>
+    body {
+        margin-top: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+    }
+
+    header {
+        background-color: #5dade2;
+        max-width: 820px;
+        margin: 0 auto;
+        /* Centramos horizontalmente */
+        color: white;
+        padding: 1rem 2rem;
+        margin-bottom: 30px;
+        text-align: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        /* Opcional, para bordes redondeados */
+    }
+
+    .details-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .details-container .field-label {
+        font-weight: bold;
+        color: #555;
+        margin-top: 10px;
+    }
+
+    .details-container .field-value {
+        padding: 10px;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .button-back {
+        display: inline-block;
+        text-decoration: none;
+        background-color: #ccc;
+        color: #000;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-align: center;
+        transition: background-color 0.3s ease;
+        margin-top: 15px;
+        margin-left: 220px;
+    }
+
+    .button-back:hover {
+        background-color: #aaa;
+    }
+</style>
+
+<header>Detalles del Producto #{{ producto.id }}</header>
+
+<div class="details-container">
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <div class="field-label">Nombre:</div>
+    <div class="field-value">{{ producto.nombre }}</div>
+
+    <div class="field-label">Categoría:</div>
+    <div class="field-value">{{ producto.categoria.nombre }}</div>
+
+    <div class="field-label">Proveedor:</div>
+    <div class="field-value">{{ producto.proveedor.nombre }}</div>
+
+    <div class="field-label">Contacto de Proveedor:</div>
+    <div class="field-value">{{ producto.proveedor.contacto }}</div>
+
+    <div class="field-label">Cantidad en Stock:</div>
+    <div class="field-value">{{ producto.cantidadEnStock }}</div>
+
+    <div class="field-label">Precio:</div>
+    <div class="field-value">${{ producto.precio }}</div>
+
+    <a href="{% url 'listar_productos' %}" class="button-back">Volver a la Lista</a>
+</div>
+
+{% endblock %}
