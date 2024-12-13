@@ -24,7 +24,6 @@
     .productos-container {
         display: grid;
         grid-template-columns: repeat(4, minmax(220px, 1fr));
-        /* Ajustar tamaño de las tarjetas */
         gap: 20px;
         padding: 20px;
         max-width: 1200px;
@@ -44,8 +43,6 @@
         text-align: center;
         border: 1px solid #ddd;
         overflow: hidden;
-        grid-column: span 1.5;
-        /* Hacer que ocupe dos columnas */
     }
 
     .producto:hover {
@@ -88,8 +85,6 @@
     }
 </style>
 
-
-</head>
 <header>Lista de Productos</header>
 
 {% if productos %}
@@ -97,10 +92,9 @@
     {% for producto in productos %}
     <div class="producto">
         <h3>{{ producto.nombre }}</h3>
-        <p><strong>Categoría:</strong> {{ producto.categoria.nombre }}</p>
-        <p><strong>Proveedor:</strong> {{ producto.proveedor.nombre }}</p>
-        <p><strong>Contacto de Proveedor:</strong> {{ producto.proveedor.contacto }}</p>
-        <p><strong>Cantidad en Stock:</strong> {{ producto.cantidadEnStock }}</p>
+        <p><strong>Categoría:</strong> {{ producto.categoria_nombre }}</p>
+        <p><strong>Proveedor:</strong> {{ producto.proveedor_nombre }}</p>
+        <p><strong>Cantidad en Stock:</strong> {{ producto.cantidad_en_stock }}</p>
         <p><strong>Precio:</strong> ${{ producto.precio }}</p>
 
         <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-primary">Ver Detalles</a>

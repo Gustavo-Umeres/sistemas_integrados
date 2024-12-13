@@ -6,6 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from .forms import *
+from django.contrib import messages
 
 def index(request):
     return render(request, 'core/index.html')
@@ -30,7 +31,7 @@ def tables(request):
 
 def listar_clientes(request):
     # URL de la API de clientes
-    api_url = "https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/clientes/"  # Cambia por la URL real
+    api_url = "https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/clientes/"  # Cambia por la URL real
     try:
         # Realizar la solicitud GET
         response = requests.get(api_url)
@@ -47,7 +48,7 @@ def listar_clientes(request):
 
 def editar_cliente(request, cliente_id):
     # URL de la API para el cliente específico
-    api_url = f"https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/clientes/{cliente_id}/"
+    api_url = f"https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/clientes/{cliente_id}/"
 
     if request.method == "POST":
         try:
@@ -91,7 +92,7 @@ def delete_cliente(request, cliente_id):
     """
     Vista para eliminar un cliente dado su ID.
     """
-    api_url = f"https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/clientes/{cliente_id}/"
+    api_url = f"https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/clientes/{cliente_id}/"
 
     if request.method == "POST":
         try:
@@ -123,7 +124,7 @@ def crear_cliente(request):
             "is_staff": request.POST.get("is_staff") == "on",
         }
 
-        api_url = "https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/clientes/"
+        api_url = "https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/clientes/"
 
         try:
             # Enviar solicitud POST a la API
@@ -141,7 +142,7 @@ def crear_cliente(request):
 
 def obtener_ventas(request):
     # URL de la API externa de ventas
-    api_url = "https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/ventas/"
+    api_url = "https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/ventas/"
 
     # Realiza la solicitud GET a la API externa
     response = requests.get(api_url)
@@ -154,7 +155,7 @@ def obtener_ventas(request):
 
 def detalle_venta(request, venta_id):
     # URL de la API externa para obtener el detalle de una venta específica
-    api_url = f"https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/ventas/{venta_id}/"
+    api_url = f"https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/ventas/{venta_id}/"
 
     try:
         # Realizar la solicitud GET
@@ -172,60 +173,138 @@ def detalle_venta(request, venta_id):
 
 
 def listar_productos(request):
-    # URL de la API externa de productos
-    api_url = "http://127.0.0.1:8081/api/productos/"  # Cambia esta URL por la de tu API real
+    # URLs de las APIs externas
+    api_productos_url = "https://inventario-django-production.up.railway.app/api/productos/"
+    api_categorias_url = "https://inventario-django-production.up.railway.app/api/categorias/"
+    api_proveedores_url = "https://inventario-django-production.up.railway.app/api/proveedores/"
 
     try:
-        # Realiza la solicitud GET
-        response = requests.get(api_url)
-        response.raise_for_status()  # Lanza una excepción si ocurre un error
-        productos = response.json()  # Parsea la respuesta a formato JSON
+        # Obtener la lista de productos
+        response_productos = requests.get(api_productos_url)
+        response_productos.raise_for_status()
+        productos = response_productos.json()
+
+        # Obtener la lista de categorías
+        response_categorias = requests.get(api_categorias_url)
+        response_categorias.raise_for_status()
+        categorias = {categoria["id"]: categoria["nombre"] for categoria in response_categorias.json()}
+
+        # Obtener la lista de proveedores
+        response_proveedores = requests.get(api_proveedores_url)
+        response_proveedores.raise_for_status()
+        proveedores = {proveedor["id"]: proveedor for proveedor in response_proveedores.json()}
+
+        # Enriquecer los datos de productos con nombres de categorías y proveedores
+        for producto in productos:
+            producto["categoria_nombre"] = categorias.get(producto["categoria"], "Desconocida")
+            proveedor = proveedores.get(producto["proveedor"], {"nombre": "Desconocido", "contacto": "Desconocido"})
+            producto["proveedor_nombre"] = proveedor["nombre"]
+            producto["proveedor_contacto"] = proveedor["contacto"]
+
     except requests.exceptions.RequestException as e:
-        # Maneja errores al consumir la API
+        # Maneja errores en la comunicación con las APIs
         productos = []
         error = f"Error al consumir la API: {e}"
         return render(request, "core/productos.html", {"productos": productos, "error": error})
 
-    # Renderiza el template con la lista de productos
+    # Renderiza la plantilla con los productos enriquecidos
     return render(request, "core/productos.html", {"productos": productos})
 
 def detalle_producto(request, producto_id):
-    # URL de la API externa para obtener el detalle de una venta específica
-    api_url = f"http://127.0.0.1:8081/api/productos/{producto_id}/"
+    # URL de la API externa
+    api_url_producto = f"https://inventario-django-production.up.railway.app/api/productos/{producto_id}/"
+    api_url_categoria = "https://inventario-django-production.up.railway.app/api/categorias/"
+    api_url_proveedor = "https://inventario-django-production.up.railway.app/api/proveedores/"
 
     try:
-        # Realizar la solicitud GET
-        response = requests.get(api_url)
-        response.raise_for_status()  # Lanza excepción si hay error
-        producto = response.json()  # Parsear respuesta como JSON
+        # Obtener los detalles del producto
+        response_producto = requests.get(api_url_producto)
+        response_producto.raise_for_status()
+        producto = response_producto.json()
+
+        # Obtener detalles de la categoría
+        response_categoria = requests.get(f"{api_url_categoria}{producto['categoria']}/")
+        response_categoria.raise_for_status()
+        categoria = response_categoria.json()
+
+        # Obtener detalles del proveedor
+        response_proveedor = requests.get(f"{api_url_proveedor}{producto['proveedor']}/")
+        response_proveedor.raise_for_status()
+        proveedor = response_proveedor.json()
+
+        # Enriquecer el producto con nombres de categoría y proveedor
+        producto["categoria_nombre"] = categoria["nombre"]
+        producto["proveedor_nombre"] = proveedor["nombre"]
+        producto["proveedor_contacto"] = proveedor["contacto"]
 
     except requests.exceptions.RequestException as e:
-        venta = None
         error = f"Error al consumir la API: {e}"
-        return render(request, "core/detalle_producto.html", {"producto": producto, "error": error})
-    
-    # Renderizar el template con el detalle de la venta
+        return render(request, "core/detalle_producto.html", {"producto": None, "error": error})
+
+    # Renderizar la plantilla con el producto enriquecido
     return render(request, "core/detalle_producto.html", {"producto": producto})
 
-
 def obtener_nombres_clientes(request):
-    # URL de la API de clientes
-    api_url = "https://5c2c-38-253-159-56.ngrok-free.app/api/ventas/clientes/"  # Cambia por la URL real
+    api_clientes_url = "https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/clientes/"
+    api_productos_url = "https://inventario-django-production.up.railway.app/api/productos/"
+
     try:
-        # Realizar la solicitud GET
-        response = requests.get(api_url)
-        response.raise_for_status()  # Lanza excepción si hay error
-        clientes = response.json()  # Parsear respuesta como JSON
-        
-        # Crear una lista con los nombres completos
-        nombres_completos = [f"{cliente['first_name']} {cliente['last_name']}" for cliente in clientes]
+        # Obtener clientes
+        clientes_response = requests.get(api_clientes_url)
+        clientes_response.raise_for_status()
+        clientes = clientes_response.json()
+
+        # Obtener productos
+        productos_response = requests.get(api_productos_url)
+        productos_response.raise_for_status()
+        productos = productos_response.json()
+
+        if not clientes:
+            messages.warning(request, "No hay clientes disponibles.")
+        if not productos:
+            messages.warning(request, "No hay productos disponibles.")
+
     except requests.exceptions.RequestException as e:
-        # En caso de error, manejar excepción y pasar un mensaje al template
-        nombres_completos = []
-        error = f"Error al consumir la API: {e}"
-        return render(request, "core/nombres_clientes.html", {"nombres_completos": nombres_completos, "error": error})
+        messages.error(request, f"Error al cargar datos: {e}")
+        return redirect("index")
 
-    # Renderizar el template con la lista de nombres completos
-    return render(request, "core/crear_venta.html", {"nombres_completos": nombres_completos})
+    return render(request, "core/crear_venta.html", {"clientes": clientes, "productos": productos})
+def crear_venta(request):
+    if request.method != "POST":
+        messages.warning(request, "Método no permitido.")
+        return redirect("obtener_nombres_clientes")
 
+    api_ventas_url = "https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/ventas/"
+    try:
+        cliente_id = request.POST.get("cliente")
+        productos = request.POST.getlist("producto[]")
+        cantidades = request.POST.getlist("cantidad[]")
 
+        if not cliente_id or not productos or not cantidades:
+            messages.error(request, "Todos los campos son obligatorios.")
+            return redirect("obtener_nombres_clientes")
+
+        items = [
+            {"product_id": int(producto), "quantity": int(cantidad)}
+            for producto, cantidad in zip(productos, cantidades)
+        ]
+
+        payload = {
+            "cliente_id": int(cliente_id),
+            "address": "123 Main Street",
+            "is_paid": True,
+            "items": items,
+        }
+
+        response = requests.post(api_ventas_url, json=payload)
+        if response.status_code == 201:
+            messages.success(request, "Venta creada exitosamente.")
+            return redirect("obtener_ventas")
+        else:
+            error_detail = response.json().get("detail", "Error desconocido")
+            messages.error(request, f"Error al crear la venta: {error_detail}")
+            return redirect("obtener_nombres_clientes")
+
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Error al procesar la venta: {e}")
+        return redirect("obtener_nombres_clientes")

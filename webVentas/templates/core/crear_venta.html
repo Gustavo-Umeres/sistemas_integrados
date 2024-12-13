@@ -1,7 +1,7 @@
 {% extends 'core/index.html' %}
+
 {% block obtener_nombres_clientes %}
 <style>
-    /* Estilos generales */
     body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f9;
@@ -9,7 +9,6 @@
         padding: 0;
     }
 
-    /* Encabezado */
     header {
         background-color: #2ecc71;
         max-width: 920px;
@@ -23,7 +22,6 @@
         border-radius: 8px;
     }
 
-    /* Contenedor principal */
     .container {
         max-width: 900px;
         margin: 0 auto;
@@ -33,7 +31,6 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    /* Formulario */
     form {
         margin: 20px 0;
     }
@@ -46,8 +43,7 @@
     }
 
     select,
-    input[type="text"],
-    input[type="email"],
+    input[type="number"],
     textarea {
         width: 100%;
         padding: 10px;
@@ -58,32 +54,55 @@
     }
 
     select:focus,
-    input[type="text"]:focus,
-    textarea:focus {
+    input[type="number"]:focus {
         outline: none;
         border-color: #007bff;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     }
 
-    button[type="submit"] {
-        width: 100%;
+    .add-product {
+        margin-top: 10px;
         background-color: #007bff;
         color: white;
         border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .add-product:hover {
+        background-color: #0056b3;
+    }
+
+    .remove-product {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        background-color: #28a745;
+        color: white;
+        border: none;
         padding: 12px;
-        margin-top: 5px;
+        margin-top: 20px;
         font-size: 16px;
         border-radius: 5px;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 12px;
     }
 
     button[type="submit"]:hover {
-        background-color: #0056b3;
+        background-color: #218838;
     }
 
-    /* Mensajes de error */
     .error-message {
         color: red;
         font-weight: bold;
@@ -94,30 +113,87 @@
 <div class="container">
     <header>Crear Venta</header>
 
-    <!-- Mostrar error si hay alguno -->
-    {% if error %}
-    <p class="error-message">{{ error }}</p>
+    <!-- Mostrar mensajes de error o éxito -->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
     {% endif %}
 
-    <!-- Formulario -->
-    <form method="post">
+    <!-- Formulario para crear venta -->
+    <form method="post" action="{% url 'crear_venta' %}">
         {% csrf_token %}
 
-        <!-- Campo para seleccionar el cliente -->
+        <!-- Selección del cliente -->
         <label for="cliente">Cliente:</label>
         <select id="cliente" name="cliente" required>
-            {% for nombre in nombres_completos %}
-            <option value="{{ nombre }}">{{ nombre }}</option>
+            {% for cliente in clientes %}
+            <option value="{{ cliente.id }}">{{ cliente.first_name }} {{ cliente.last_name }}</option>
             {% empty %}
             <option value="">No hay clientes disponibles</option>
             {% endfor %}
         </select>
 
-        <!-- Renderizar el resto del formulario -->
-        {{ form.as_p }}
+        <!-- Tabla dinámica para agregar productos -->
+        <h3>Productos</h3>
+        <table id="productos-table" style="width: 100%; margin-bottom: 20px;">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Producto</th>
+                    <th style="text-align: left;">Cantidad</th>
+                    <th style="text-align: left;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select name="producto[]" required>
+                            {% for producto in productos %}
+                            <option value="{{ producto.id }}">{{ producto.nombre }} (Stock: {{ producto.cantidad_en_stock }})</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="cantidad[]" min="1" placeholder="Cantidad" required>
+                    </td>
+                    <td>
+                        <button type="button" class="remove-product">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" id="add-product" class="add-product">Agregar Producto</button>
 
-        <!-- Botón para enviar -->
+        <!-- Botón para guardar la venta -->
         <button type="submit">Guardar Venta</button>
     </form>
 </div>
-{% endblock %}
+
+<script>
+    document.getElementById("add-product").addEventListener("click", function () {
+        const table = document.getElementById("productos-table").querySelector("tbody");
+        const newRow = table.querySelector("tr").cloneNode(true);
+
+        // Limpiar los valores del nuevo producto
+        newRow.querySelector("select").value = "";
+        newRow.querySelector("input").value = "";
+
+        // Añadir la fila a la tabla
+        table.appendChild(newRow);
+
+        // Asignar evento al botón "Eliminar"
+        newRow.querySelector(".remove-product").addEventListener("click", function () {
+            this.closest("tr").remove();
+        });
+    });
+
+    // Añadir evento "Eliminar" para la primera fila
+    document.querySelectorAll(".remove-product").forEach(button => {
+        button.addEventListener("click", function () {
+            this.closest("tr").remove();
+        });
+    });
+</script>
+{% endblock obtener_nombres_clientes %}

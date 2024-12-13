@@ -16,7 +16,8 @@ urlpatterns = [
     path('accounts/ventas/', obtener_ventas, name = 'obtener_ventas'),
     path('accounts/ventas/<int:venta_id>/', detalle_venta, name = 'detalle_venta'),
     path('accounts/productos/', listar_productos, name = 'listar_productos'),
-    path('accounts/productos/<int:producto_id>/', detalle_producto, name = 'detalle_producto'),
+    path('accounts/productos/<uuid:producto_id>/', detalle_producto, name='detalle_producto'),
     path('accounts/crear/', obtener_nombres_clientes, name = 'obtener_nombres_clientes' ),
+    
     path('accounts/crear-cliente/', crear_cliente, name='crear_cliente'),
 ]
