@@ -153,25 +153,6 @@ def obtener_ventas(request):
         ventas = []
     return render(request, 'core/ventas.html', {'ventas': ventas})
 
-def detalle_venta(request, venta_id):
-    # URL de la API externa para obtener el detalle de una venta específica
-    api_url = f"https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/ventas/{venta_id}/"
-
-    try:
-        # Realizar la solicitud GET
-        response = requests.get(api_url)
-        response.raise_for_status()  # Lanza excepción si hay error
-        venta = response.json()  # Parsear respuesta como JSON
-
-    except requests.exceptions.RequestException as e:
-        venta = None
-        error = f"Error al consumir la API: {e}"
-        return render(request, "core/detalle_venta.html", {"venta": venta, "error": error})
-    
-    # Renderizar el template con el detalle de la venta
-    return render(request, "core/detalle_venta.html", {"venta": venta})
-
-
 def listar_productos(request):
     # URLs de las APIs externas
     api_productos_url = "https://inventario-django-production.up.railway.app/api/productos/"
@@ -313,3 +294,79 @@ def crear_venta(request):
         # Manejar excepciones de solicitudes
         messages.error(request, f"Error al procesar la venta: {e}")
         return redirect("obtener_nombres_clientes")
+    
+def editar_venta(request, venta_id):
+    api_url = f"https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/ventas/{venta_id}/"
+
+    if request.method == "POST":
+        try:
+            cliente_id = request.POST.get("cliente")
+            address = request.POST.get("address")
+            is_paid = request.POST.get("is_paid") == "on"
+            productos = request.POST.getlist("producto[]")
+            cantidades = request.POST.getlist("cantidad[]")
+
+            items = [{"product_id": producto, "quantity": int(cantidad)} for producto, cantidad in zip(productos, cantidades)]
+
+            payload = {
+                "cliente_id": int(cliente_id),
+                "address": address,
+                "is_paid": is_paid,
+                "items": items,
+            }
+
+            response = requests.put(api_url, json=payload)
+            if response.status_code == 200:
+                messages.success(request, "Venta actualizada exitosamente.")
+                return redirect("obtener_ventas")
+            else:
+                error_detail = response.json().get("detail", "Error desconocido")
+                messages.error(request, f"Error al actualizar la venta: {error_detail}")
+
+        except ValueError as e:
+            messages.error(request, f"Error en los datos enviados: {e}")
+        except requests.exceptions.RequestException as e:
+            messages.error(request, f"Error al procesar la actualización: {e}")
+
+    try:
+        # Obtener los datos de la venta
+        response = requests.get(api_url)
+        response.raise_for_status()
+        venta = response.json()
+
+        # Obtener los clientes
+        clientes_response = requests.get("https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/clientes/")
+        clientes_response.raise_for_status()
+        clientes = clientes_response.json()
+
+        # Obtener los productos
+        productos_response = requests.get("https://inventario-django-production.up.railway.app/api/productos/")
+        productos_response.raise_for_status()
+        productos = productos_response.json()
+
+        # Ajustar los datos de la venta para facilitar el uso en el template
+        venta_data = {
+            "id": venta["id"],
+            "cliente_id": venta["cliente"]["id"],
+            "cliente_nombre": f"{venta['cliente']['first_name']} {venta['cliente']['last_name']}",
+            "address": venta["address"],
+            "is_paid": venta["is_paid"],
+            "items": [
+                {
+                    "producto_id": item["producto"]["id"],
+                    "producto_nombre": item["producto"]["nombre"],
+                    "quantity": item["quantity"],
+                }
+                for item in venta["items"]
+            ],
+        }
+
+        return render(request, "core/editar_venta.html", {
+            "venta": venta_data,
+            "clientes": clientes,
+            "productos": productos,
+        })
+
+    except requests.exceptions.RequestException as e:
+        messages.error(request, f"Error al cargar los datos: {e}")
+        return redirect("obtener_ventas")

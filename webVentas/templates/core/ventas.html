@@ -103,7 +103,7 @@
 {% if ventas %}
 <div class="ventas-container">
     {% for venta in ventas %}
-        <a href="{% url 'detalle_venta' venta.id %}" style="text-decoration: none; color: inherit;">
+        <a href="{% url 'editar_venta' venta.id %}" style="text-decoration: none; color: inherit;">
             <div class="venta">
                 <h2>Venta #{{ venta.id }}</h2>
                 <p><strong>Cliente:</strong> {{ venta.cliente_id }}</p>

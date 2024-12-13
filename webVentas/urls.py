@@ -14,10 +14,14 @@ urlpatterns = [
     path('accounts/clientes/editar/<int:cliente_id>/', editar_cliente, name='editar_cliente'),
     path('accounts/clientes/delete/<int:cliente_id>/', delete_cliente, name='delete_cliente'),
     path('accounts/ventas/', obtener_ventas, name = 'obtener_ventas'),
-    path('accounts/ventas/<int:venta_id>/', detalle_venta, name = 'detalle_venta'),
+
+    path('accounts/ventas/<int:venta_id>/', editar_venta, name = 'editar_venta'),
+
     path('accounts/productos/', listar_productos, name = 'listar_productos'),
     path('accounts/productos/<uuid:producto_id>/', detalle_producto, name='detalle_producto'),
     path('accounts/crear/', obtener_nombres_clientes, name='obtener_nombres_clientes'),
     path('accounts/crear-venta/', crear_venta, name='crear_venta'),  # Cambié el nombre de la URL
     path('accounts/crear-cliente/', crear_cliente, name='crear_cliente'),
+    path('accounts/ventas/editar/<int:venta_id>/', editar_venta, name='editar_venta'),
+
 ]
