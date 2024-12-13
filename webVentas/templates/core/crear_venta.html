@@ -112,16 +112,6 @@
 
 <div class="container">
     <header>Crear Venta</header>
-
-    <!-- Mostrar mensajes de error o éxito -->
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <li class="alert alert-{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
     <!-- Formulario para crear venta -->
     <form method="post" action="{% url 'crear_venta' %}">
         {% csrf_token %}

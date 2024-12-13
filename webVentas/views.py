@@ -276,6 +276,7 @@ def crear_venta(request):
 
     api_ventas_url = "https://1c6c-2001-1388-ae0-d5f8-5c34-f411-227f-aa55.ngrok-free.app/api/ventas/ventas/"
     try:
+        # Obtener datos del formulario
         cliente_id = request.POST.get("cliente")
         productos = request.POST.getlist("producto[]")
         cantidades = request.POST.getlist("cantidad[]")
@@ -284,27 +285,31 @@ def crear_venta(request):
             messages.error(request, "Todos los campos son obligatorios.")
             return redirect("obtener_nombres_clientes")
 
+        # Construir el payload
         items = [
-            {"product_id": int(producto), "quantity": int(cantidad)}
+            {"product_id": producto, "quantity": int(cantidad)}  # product_id como string para UUIDs
             for producto, cantidad in zip(productos, cantidades)
         ]
 
         payload = {
-            "cliente_id": int(cliente_id),
+            "cliente_id": int(cliente_id),  # Asumimos que cliente_id sigue siendo un entero
             "address": "123 Main Street",
             "is_paid": True,
             "items": items,
         }
 
+        # Enviar solicitud a la API
         response = requests.post(api_ventas_url, json=payload)
-        if response.status_code == 201:
+        if response.status_code == 201:  # Verificar éxito
             messages.success(request, "Venta creada exitosamente.")
             return redirect("obtener_ventas")
         else:
+            # Capturar detalles del error desde la respuesta
             error_detail = response.json().get("detail", "Error desconocido")
             messages.error(request, f"Error al crear la venta: {error_detail}")
             return redirect("obtener_nombres_clientes")
 
     except requests.exceptions.RequestException as e:
+        # Manejar excepciones de solicitudes
         messages.error(request, f"Error al procesar la venta: {e}")
         return redirect("obtener_nombres_clientes")
